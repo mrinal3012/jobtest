@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
-import 'package:jobtest/model/Registration_model.dart';
+import 'package:jobtest/user/user_page.dart';
+import 'package:http/http.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -15,28 +16,31 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  GlobalKey<FormState> _formkey=GlobalKey();
-  bool input=true;
+  GlobalKey<FormState> _formkey = GlobalKey();
+  bool input = true;
+  int localValue = 0;
 
-  String url="https://reqres.in/api/register";
-  RegistrationModel ? registrationModel;
+  void login(String email, password) async {
+    try {
+      Response response = await post(Uri.parse("https://reqres.in/api/login"),
+          body: {'email': email, 'password': password});
 
-  fatchLoginData()async{
-    var respons = await http.get(Uri.parse(url));
-    var data = jsonDecode(respons.body);
-    registrationModel = RegistrationModel.fromJson(data);
-
-    setState(() {
-
-    });
+      if (response.statusCode == 200) {
+        localValue = response.statusCode;
+        print(
+            "all is right......................................................");
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => UserPage(),
+        ));
+      } else {
+        input = false;
+        print("nothing ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,");
+      }
+    } catch (value) {
+      print(value.toString());
+    }
   }
 
-  @override
-  void initState() {
-    fatchLoginData();
-    // TODO: implement initState
-    super.initState();
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +56,9 @@ class _LoginPageState extends State<LoginPage> {
                     Expanded(
                         flex: 2,
                         child: Container(
-                          child: input==true?SvgPicture.asset("images/undraw.svg"):SvgPicture.asset("images/undraw2.svg") ,
+                          child: input == true
+                              ? SvgPicture.asset("images/undraw.svg")
+                              : SvgPicture.asset("images/undraw2.svg"),
                         )),
                     Expanded(
                         flex: 2,
@@ -60,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                                flex: 1,
+                                flex: 5,
                                 child: Text(
                                   "Login Details",
                                   style: TextStyle(
@@ -69,29 +75,28 @@ class _LoginPageState extends State<LoginPage> {
                                       fontWeight: FontWeight.w700),
                                 )),
                             Expanded(
-                                flex: 2,
+                                flex: 5,
                                 child: Form(
                                   key: _formkey,
                                   child: Container(
                                       child: TextFormField(
                                     controller: emailController,
-                                    validator:(value){
-                                      if(value=="mrinal@"){
-                                        return "Email cont be empty";
-                                      }else{
+                                    validator: (value) {
+                                      if (value == localValue) {
+                                      } else {
                                         return "Please enter valid email!";
                                       }
                                     },
-
                                     decoration: InputDecoration(
-                                        hintText: "Username,email & phone number",
+                                        hintText:
+                                            "Username,email & phone number",
                                         border: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(5))),
                                   )),
                                 )),
                             Expanded(
-                                flex: 2,
+                                flex: 5,
                                 child: Container(
                                     child: TextFormField(
                                   controller: passwordController,
@@ -120,45 +125,39 @@ class _LoginPageState extends State<LoginPage> {
                             Expanded(
                                 flex: 2,
                                 child: Container(
-                                    // decoration: BoxDecoration(
-                                    //     color: Color(0xff0B6EFE),
-                                    //     borderRadius: BorderRadius.circular(5)),
-                                    // child: Center(
-                                    //     child: Container(
-                                    //         height: double.infinity,
-                                    //         child: Center(
-                                    //           child: TextButton(
-                                    //               onPressed: () {},
-                                    //               child: Text(
-                                    //                 "Login",
-                                    //                 style: TextStyle(
-                                    //                     fontSize: 24,
-                                    //                     color:
-                                    //                         Color(0xffFFFFFF),
-                                    //                     fontWeight:
-                                    //                         FontWeight.w700),
-                                    //               )),
-                                    //         )))
-                                  
                                   child: MaterialButton(
-                                    color: input==true? Color(0xff0B6EFE):Color(0xff0B6EFE).withOpacity(.5),
-                                    minWidth: double.infinity,shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-
+                                    color: input == true
+                                        ? Color(0xff0B6EFE)
+                                        : Color(0xff0B6EFE).withOpacity(.5),
+                                    minWidth: double.infinity,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5)),
                                     onPressed: () {
-                                    if(_formkey.currentState!.validate()){
-                                      print("succesful");
-                                    }
-                                    else{
-                                      input=false;
-                                      setState(() {
-
-                                      });
-                                    }
-                                  },child: Text("Login", style:input==true? TextStyle(fontSize: 24, color: Color(0xffFFFFFF),fontWeight: FontWeight.w700):
-                                                    TextStyle(fontSize: 24, color: Color(0xffFFFFFF).withOpacity(.5),fontWeight: FontWeight.w700)
-                                    ,),),
-                                )
-                            ),
+                                      login(emailController.text.toString(),
+                                          passwordController.text.toString());
+                                      if (_formkey.currentState!.validate()) {
+                                        print("succesful");
+                                        // Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserPage(),));
+                                      } else {
+                                        input = false;
+                                        setState(() {});
+                                      }
+                                    },
+                                    child: Text(
+                                      "Login",
+                                      style: input == true
+                                          ? TextStyle(
+                                              fontSize: 24,
+                                              color: Color(0xffFFFFFF),
+                                              fontWeight: FontWeight.w700)
+                                          : TextStyle(
+                                              fontSize: 24,
+                                              color: Color(0xffFFFFFF)
+                                                  .withOpacity(.5),
+                                              fontWeight: FontWeight.w700),
+                                    ),
+                                  ),
+                                )),
                             Expanded(
                                 flex: 1,
                                 child: Row(
