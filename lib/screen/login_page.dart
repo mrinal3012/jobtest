@@ -97,14 +97,8 @@ class _LoginPageState extends State<LoginPage> {
                                 )),
                             Expanded(
                                 flex: 5,
-                                child: Container(
-                                    child: TextFormField(
-                                  controller: passwordController,
-                                  decoration: InputDecoration(
-                                      hintText: "Password",
-                                      border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5))),
+                                child: Container(child: TextFormField(controller: passwordController, decoration: InputDecoration(
+                                      hintText: "Password", border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
                                 ))),
                           ],
                         )),
